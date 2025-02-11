@@ -76,7 +76,7 @@ namespace Saper.MVVM.ViewModel
                 }
             }
         }
-        public int CurrentStreak //CurrentStreak
+        public int CurrentStreak 
         {
             get { return _userRecordAct.Streak; }
             set
