@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="Saper.MVVM.View.RulesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModel="clr-namespace:Saper.MVVM.ViewModel"
+             xmlns:local="clr-namespace:Saper.MVVM.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="800">
+    <Grid>
+        <Grid Margin="10">
+            <StackPanel>
+                <TextBlock Text="Minesweeper Game Rules"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       TextAlignment="Center"
+                       Margin="0,0,0,10"/>
+
+                <TextBlock Foreground="White" TextWrapping="Wrap" FontSize="14">
+                <Run Text="Minesweeper is a classic logic game where the goal is to uncover all the tiles on the board that do not contain mines."/>
+                 <LineBreak/>
+                <Run Text="1. Uncovering Tiles – Left-click on a tile to reveal it. If the tile contains a mine, the game is over."/>
+                <LineBreak/>
+                <Run Text="2. Marking Mines – Right-click on a tile to place a flag, marking it as a potential mine."/>
+                <LineBreak/>
+                <Run Text="3. Numbered Tiles – Revealed tiles may display a number, indicating how many mines are adjacent to that tile."/>
+                <LineBreak/>
+                <Run Text="4. Winning the Game – You win if all non-mine tiles are uncovered."/>
+                <LineBreak/>
+                <Run Text="5. Losing the Game – The game ends if you click on a mine."/>
+                </TextBlock>
+
+                <TextBlock Foreground="White" Text="Game Symbols:" FontSize="16" FontWeight="Bold" Margin="0,10,0,5"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                    <Image Source="pack://application:,,,/Saper;component/Images/flag.png" Width="32" Height="32"/>
+                    <TextBlock Foreground="White" Text=" – Flag (marks a potential mine)" FontSize="14"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                    <Image Source="pack://application:,,,/Saper;component/Images/bomba.png" Width="32" Height="32"/>
+                    <TextBlock Foreground="White" Text=" – Bomb (stepping on it means game over)" FontSize="14"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                    <Image Source="pack://application:,,,/Saper;component/Images/number.png" Width="32" Height="32"/>
+                    <TextBlock Foreground="White" Text=" – Number (indicates how many mines are nearby)" FontSize="14"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

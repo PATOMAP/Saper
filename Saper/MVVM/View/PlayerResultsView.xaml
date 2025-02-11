@@ -1,0 +1,126 @@
+﻿<UserControl x:Class="Saper.MVVM.View.PlayerResultsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewModel="clr-namespace:Saper.MVVM.ViewModel"
+             xmlns:local="clr-namespace:Saper.MVVM.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="800">
+
+    <Grid>
+        <TabControl
+            
+            SelectedIndex="{Binding SelectedItemTab, Mode=TwoWay}"
+            Style="{StaticResource TabStyle}" Margin="52,21,52,68"
+            Height="300" Width="700"
+            >
+      
+            <TabItem Margin="-2,0,0,0" Header="Time User" Style="{StaticResource TabItemStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition />
+                        <RowDefinition Height="18"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock 
+                        HorizontalAlignment="Center"
+                        Grid.Row="1">Level:</TextBlock>
+                    <Border Grid.Row="2" CornerRadius="2" 
+                                Background="Transparent" 
+                                BorderBrush="White" 
+                                BorderThickness="1"
+                                Height="25"
+                                Width="80"
+                                HorizontalAlignment="Stretch"
+                                >
+                        <ComboBox Margin="0,0,0,-1" 
+                                  Height="25"
+                                      SelectedIndex="0"
+                                      ItemsSource="{Binding ItemsCombo}"
+                                      SelectedItem="{Binding SelectedItemCombo, Mode=TwoWay}"
+                                      BorderThickness="0"
+                                      Background="White"
+                                      Foreground="Black">
+
+                        </ComboBox>
+
+                    </Border>
+                    <DataGrid Grid.Row="4" Width="300" 
+                              ItemsSource="{Binding DataTable}" 
+                              AutoGenerateColumns="False" 
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column" 
+                              IsHitTestVisible="False"
+                              BorderBrush="LightGray"
+                              GridLinesVisibility="None"
+                              CellStyle="{StaticResource DataGridCellStyle}"
+                              ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                              >
+                        <DataGrid.Columns>
+                            <DataGridTextColumn   Header="Name" Width="150" CanUserResize="False" CanUserReorder="False" Binding="{Binding Path=Name}" IsReadOnly="True"/>
+                            <DataGridTextColumn  Header="Time" Width="*" MinWidth="20" CanUserResize="False" CanUserReorder="False" Binding="{Binding Path=Time}" IsReadOnly="True" SortDirection="Ascending"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+
+
+            </TabItem>
+            <TabItem Header="Streak User" Style="{StaticResource TabItemStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition />
+                        <RowDefinition Height="18"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock 
+                        HorizontalAlignment="Center"
+                        Grid.Row="1">Level:</TextBlock>
+                    <Border Grid.Row="2" CornerRadius="2" 
+                                Background="Transparent" 
+                                BorderBrush="White" 
+                                BorderThickness="1"
+                                Height="25"
+                                Width="80"
+                                HorizontalAlignment="Stretch"
+                                >
+                        <ComboBox Margin="0,0,0,-1" 
+                                  Height="25"
+                                      SelectedIndex="0"
+                                      ItemsSource="{Binding ItemsCombo}"
+                                      SelectedItem="{Binding SelectedItemCombo, Mode=TwoWay}"
+                                      BorderThickness="0"
+                                      Background="White"
+                                      Foreground="Black">
+
+                        </ComboBox>
+
+                    </Border>
+                    <DataGrid Grid.Row="4" Width="300" 
+                              ItemsSource="{Binding DataTable}" 
+                              AutoGenerateColumns="False" 
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column" 
+                              IsHitTestVisible="False"
+                              BorderBrush="LightGray"
+                              GridLinesVisibility="None"
+                              CellStyle="{StaticResource DataGridCellStyle}"
+                              ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                              >
+                        <DataGrid.Columns>
+                            <DataGridTextColumn   Header="Name" Width="150" CanUserResize="False" CanUserReorder="False" Binding="{Binding Path=Name}" IsReadOnly="True"/>
+                            <DataGridTextColumn  Header="Streak" Width="*" MinWidth="20" CanUserResize="False" CanUserReorder="False" Binding="{Binding Path=Streak}" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,44 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="TabItemStyle" TargetType="{x:Type TabItem}">
+        <Setter Property="Padding" Value="6,3"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Template">
+            
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Border x:Name="Border" Padding="4" Margin="0" CornerRadius="3,3,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,2">
+                                <GradientStop Color="LightBlue" Offset="0"/>
+                                <GradientStop Color="#FF72CCEA" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <ContentPresenter ContentSource="Header"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Border" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,2">
+                                        <GradientStop Color="LightBlue" Offset="0"/>
+                                        <GradientStop Color="#FFA4DDEF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+</ResourceDictionary>
+
+
+<!--x:Key="TabItemStyle"-->
