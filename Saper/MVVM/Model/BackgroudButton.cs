@@ -13,9 +13,9 @@ namespace Saper.MVVM.Model
 {
     public class BackgroudButton
     {
-        public BackgroudButton(ButtonSaper btn)
+        public static void ChangeButton(ButtonSaper btn)
         {
-            if(btn.Display==true)
+            if (btn.Display == true)
             {
                 if (btn.InfBomb)
                 {
@@ -23,7 +23,7 @@ namespace Saper.MVVM.Model
                     {
                         Source = new BitmapImage(new Uri("pack://application:,,,/Saper;component/Images/bomba.png"))
                     };
-                    btn.ButtonSp.Background= new SolidColorBrush(Colors.Red);
+                    btn.ButtonSp.Background = new SolidColorBrush(Colors.Red);
                     btn.ButtonSp.Content = img;
 
                 }
@@ -60,7 +60,7 @@ namespace Saper.MVVM.Model
                             txt.Foreground = new SolidColorBrush(Colors.Gray);
                             break;
                     }
-                    txt.FontWeight= FontWeights.Bold;
+                    txt.FontWeight = FontWeights.Bold;
                     btn.ButtonSp.Content = txt;
 
 
@@ -70,9 +70,6 @@ namespace Saper.MVVM.Model
                     btn.ButtonSp.Content = null;
                 }
             }
-            
-
-
 
         }
     }
