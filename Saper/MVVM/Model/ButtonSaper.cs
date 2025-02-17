@@ -13,8 +13,8 @@ namespace Saper.MVVM.Model
 {
     public class ButtonSaper
     {
-        public int x;
-        public int y;
+        private int _pozX;
+        private int _pozY;
         private bool _rightClick;
 
         private Button _buttonSp;
@@ -29,8 +29,18 @@ namespace Saper.MVVM.Model
 
         private bool _poleStart;
 
-        private bool _firstPoleAround;//status pola wokół pierwszego kliknięcia
+        private bool _firstPoleAround;
 
+        public int PozX
+        {
+            get { return _pozX; }
+            set { _pozX = value; }
+        }
+        public int PozY
+        {
+            get { return _pozY; }
+            set { _pozY = value; }
+        }
 
         public bool PoleStart
         {
@@ -70,12 +80,13 @@ namespace Saper.MVVM.Model
         public bool RightClick
         {
             get { return _rightClick; }
-
         }
+
+        
 
         public bool FirstPoleAround { get => _firstPoleAround; set => _firstPoleAround = value; }
 
-        public ButtonSaper(int x,int y) 
+        public ButtonSaper(int pozX, int pozY) 
         {
             _rightClick= false;
             Display = false;
@@ -87,8 +98,8 @@ namespace Saper.MVVM.Model
             ButtonSp.Content = txt;
             ButtonSp.MouseRightButtonUp += ButtonRightClick;
             ButtonSp.Click += ButtonLeftClick;
-            this.x = x;
-            this.y = y;
+            PozX = pozX;
+            PozY = pozY;
             
         }
 
@@ -96,13 +107,13 @@ namespace Saper.MVVM.Model
         {
             
             Button btn = sender as Button;
-            Grid grd=btn.Parent as Grid;
+            Grid grdInButton=btn.Parent as Grid;
             if(Display==false )
             {
-                if(grd.Tag == null)
+                if(grdInButton.Tag == null)
                 _rightClick = !_rightClick;
 
-                if (_rightClick && grd.Tag == null)
+                if (_rightClick && grdInButton.Tag == null)
                 {
                     Image img = new Image
                     {
@@ -113,9 +124,9 @@ namespace Saper.MVVM.Model
                 }
                 else
                 {
-                    TextBlock txt = new TextBlock() { Text = "?" };
-                    ButtonSp.Content = txt;
-                    if (grd.Tag != null)
+                    TextBlock txtInButton = new TextBlock() { Text = "?" };
+                    ButtonSp.Content = txtInButton;
+                    if (grdInButton.Tag != null)
                         _rightClick = false;
                 }
             }

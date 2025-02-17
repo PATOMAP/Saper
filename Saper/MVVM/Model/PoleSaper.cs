@@ -81,8 +81,8 @@ namespace Saper.MVVM.Model
 
                     ButtonSaper btnS = new ButtonSaper(i, j);
 
-                    Grid.SetRow(btnS.ButtonSp, btnS.x);
-                    Grid.SetColumn(btnS.ButtonSp, btnS.y);
+                    Grid.SetRow(btnS.ButtonSp, btnS.PozX);
+                    Grid.SetColumn(btnS.ButtonSp, btnS.PozY);
                     ButtonSapers.Add(btnS);
                     GridSaper.Children.Add(ButtonSapers.Last().ButtonSp);
 
@@ -172,10 +172,10 @@ namespace Saper.MVVM.Model
         {
             for (int i = 0; i < 8; i++)
             {
-                var (pozx, pozy) = checkButt(bs.x, bs.y, i);
-                if (_buttonsInGrid.Any(a => a.x == pozx && a.y == pozy))
+                var (pozx, pozy) = checkButt(bs.PozX, bs.PozY, i);
+                if (_buttonsInGrid.Any(a => a.PozX == pozx && a.PozY == pozy))
                 {
-                    ButtonSaper bsOb = _buttonsInGrid.FirstOrDefault(a => a.x == pozx && a.y == pozy);    
+                    ButtonSaper bsOb = _buttonsInGrid.FirstOrDefault(a => a.PozX == pozx && a.PozY == pozy);    
                     if (bsOb.InfBomb == false && bsOb.QuantBomb == 0 && bsOb!=null && bsOb.Display==false)
                     {
                         bsOb.Display = true;
@@ -196,10 +196,10 @@ namespace Saper.MVVM.Model
         {
             for(int i = 0;i<8;i++)
             {
-                var (pozx, pozy) = checkButt(bs.x, bs.y, i);
-                if (_buttonsInGrid.Any(a => a.x==pozx && a.y==pozy))
+                var (pozx, pozy) = checkButt(bs.PozX, bs.PozY, i);
+                if (_buttonsInGrid.Any(a => a.PozX == pozx && a.PozY == pozy))
                 {
-                    ButtonSaper bsOb = _buttonsInGrid.FirstOrDefault(a => a.x == pozx && a.y == pozy);
+                    ButtonSaper bsOb = _buttonsInGrid.FirstOrDefault(a => a.PozX == pozx && a.PozY == pozy);
                     bsOb.FirstPoleAround = true;
 
                 }
@@ -217,13 +217,13 @@ namespace Saper.MVVM.Model
                 int y = random.Next(0, _szCol);
 
                 bool bothValuesInRow = indeks.Any(row => row.Item1 == x && row.Item2 == y);
-                bool btnDispaly= _buttonsInGrid.Any(a=>a.x == x && a.y == y && a.FirstPoleAround==true);
+                bool btnDispaly= _buttonsInGrid.Any(a=>a.PozX == x && a.PozY == y && a.FirstPoleAround==true);
                 if (bothValuesInRow || btnDispaly)
                     i--;
 
                 else
                 {
-                    ButtonSaper btnS= _buttonsInGrid.FirstOrDefault(a => a.x == x && a.y == y);
+                    ButtonSaper btnS= _buttonsInGrid.FirstOrDefault(a => a.PozX == x && a.PozY == y);
                     btnS.InfBomb = true;
                     indeks.Add((x, y));
                 }
@@ -238,10 +238,10 @@ namespace Saper.MVVM.Model
 
                     for (int i = 0; i < 8; i++)
                     {
-                        var (pozx, pozy) = checkButt(btn.x, btn.y, i);
+                        var (pozx, pozy) = checkButt(btn.PozX, btn.PozY, i);
                         int pozxx = pozx;
                         int pozyy = pozy;
-                        ButtonSaper tempBtn = ButtonSapers.FirstOrDefault(a => a.x == (int)pozx && a.y == pozy);
+                        ButtonSaper tempBtn = ButtonSapers.FirstOrDefault(a => a.PozX == (int)pozx && a.PozY == pozy);
                         if (tempBtn != null && tempBtn.InfBomb == false)
                         {
                             tempBtn.QuantBomb++;
