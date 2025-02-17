@@ -106,7 +106,8 @@ namespace Saper.MVVM.Model
                      bs.FirstPoleAround = true;
                      bs.Display = true;
                      bs.DisplayNew = false;
-                     BackgroudButton bb = new BackgroudButton(bs);
+
+                  BackgroudButton.ChangeButton(bs);
                   StartPole(bs);
                   RozBomb();
                   checkAreaAround(bs);
@@ -125,7 +126,7 @@ namespace Saper.MVVM.Model
                 ButtonSaper bs = _buttonsInGrid.FirstOrDefault(a => a.DisplayNew == true);
                 bs.Display = true;
                 bs.DisplayNew = false;
-                BackgroudButton bb = new BackgroudButton(bs);
+                BackgroudButton.ChangeButton(bs);
                 if (bs.InfBomb==true)
                 {
                     LoseGame();
@@ -158,7 +159,7 @@ namespace Saper.MVVM.Model
                 if(b.InfBomb == true)
                 {
                     b.Display = true;
-                    BackgroudButton bb = new BackgroudButton(b);
+                    BackgroudButton.ChangeButton(b);
                 }
                     
             }
@@ -179,13 +180,13 @@ namespace Saper.MVVM.Model
                     if (bsOb.InfBomb == false && bsOb.QuantBomb == 0 && bsOb!=null && bsOb.Display==false)
                     {
                         bsOb.Display = true;
-                        BackgroudButton bb = new BackgroudButton(bsOb);
+                        BackgroudButton.ChangeButton(bsOb);
                         checkAreaAround(bsOb);
                     }
                     if (bs.QuantBomb == 0 && bs.InfBomb == false)
                     {
                         bsOb.Display = true;
-                        BackgroudButton bb = new BackgroudButton(bsOb);
+                        BackgroudButton.ChangeButton(bsOb);
                     }
 
                 }
