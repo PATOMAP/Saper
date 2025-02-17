@@ -17,7 +17,6 @@ namespace Saper.MVVM.ViewModel
 
         private string _selectedItemCombo;
         private int _selectedItemTab;
-        private DatabaseSaper _databaseSaper;
         private DataTable _databaseTable;
 
         public RelayCommand ChangeTabComboControl { get; private set; }
@@ -57,8 +56,8 @@ namespace Saper.MVVM.ViewModel
             ChangeTabComboControl = new RelayCommand(o =>
             {
                 int ind = ItemsCombo.IndexOf(SelectedItemCombo) + 1;
-                _databaseSaper = new DatabaseSaper();
-                _databaseTable = _databaseSaper.DisplayResults(ind, SelectedItemTab);
+
+                _databaseTable = DatabaseSaper.DisplayResults(ind, SelectedItemTab);
                 if(SelectedItemTab == 0)
                     _databaseTable.DefaultView.Sort = "Time ASC";
                 OnPropertyChanged(nameof(DataTable));

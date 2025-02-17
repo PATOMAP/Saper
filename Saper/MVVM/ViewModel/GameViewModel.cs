@@ -19,7 +19,6 @@ namespace Saper.MVVM.ViewModel
         private DateTime timeStart;
         private string _timeGame;
         private string _bestTimeGame;
-        private DatabaseSaper _databaseSaper;
         private UserRecord _userRecordAct;
         private UserRecord _userRecordBest;
         private string _flagCount;
@@ -135,8 +134,8 @@ namespace Saper.MVVM.ViewModel
              User = userInfo;
             UserName=User.Name;
             _mainViewModel = mainViewModel;
-            _databaseSaper = new DatabaseSaper();
-            _userRecordBest = _databaseSaper.InfUser(userInfo);
+
+            _userRecordBest = DatabaseSaper.InfUser(userInfo);
             _userRecordAct = new UserRecord(userInfo);
 
             CurrentStreak=_userRecordAct.Streak;
@@ -228,7 +227,7 @@ namespace Saper.MVVM.ViewModel
 
             }
             if (changeFalg)
-                _databaseSaper.UpdateResults(_userRecordBest);
+                DatabaseSaper.UpdateResults(_userRecordBest);
 
         }
 

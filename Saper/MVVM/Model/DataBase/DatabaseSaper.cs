@@ -21,234 +21,170 @@ namespace Saper.MVVM.Model
 
     class DatabaseSaper
     {
-        private SqlConnection _sqlConnection;
-        private SqlCommand _cmd = new SqlCommand();
-        private SqlDataAdapter _da = new SqlDataAdapter();
-
-        public DatabaseSaper()
+        public static SqlConnection GetConnection()
         {
-
+            string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            return new SqlConnection(connString);
         }
 
-        public void mycon()
+        public static bool CheckName(string name, string password, bool statNewUser)
         {
-            String Conn = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            _sqlConnection = new SqlConnection(Conn);
-            _sqlConnection.Open(); 
-        }
-
-        public bool CheckName(string name, string password, bool statNewUser)
-        {
-            try
+            using (SqlConnection conn = GetConnection())
             {
-               
-                mycon();
-                 string selectQuery = "SELECT * FROM UserSaper WHERE Name = @Name";
-                _cmd = new SqlCommand(selectQuery, _sqlConnection);
-                AddValueToString(new List<string> { "@Name" }, new List<object> { name });
-                _cmd.CommandType = CommandType.Text;
+                conn.Open();
+                string selectQuery = "SELECT * FROM UserSaper WHERE Name = @Name";
 
-                DataTable dataFromDatabase = new DataTable();
-                _da = new SqlDataAdapter(_cmd);
-                _da.Fill(dataFromDatabase);
-
-                if (dataFromDatabase.Rows.Count > 0 && statNewUser==false)
+                using (SqlCommand cmd = new SqlCommand(selectQuery, conn))
                 {
+                    cmd.Parameters.AddWithValue("@Name", name);
+
+                    DataTable dataFromDatabase = new DataTable();
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        da.Fill(dataFromDatabase);
+                    }
+
+                    if (dataFromDatabase.Rows.Count > 0 && statNewUser == false)
+                    {
                         string sql = "SELECT Password FROM UserSaper WHERE Name = @Name";
-                        _cmd = new SqlCommand(sql, _sqlConnection);
-                        AddValueToString(new List<string> { "@Name" },new List<object> {name});
-                        _cmd.CommandType = CommandType.Text;
-                        var result = _cmd.ExecuteScalar();
-
-                        if (result != null)
+                        using (SqlCommand cmd2 = new SqlCommand(sql, conn))
                         {
-                            string hashedPassword = result.ToString();
+                            cmd2.Parameters.AddWithValue("@Name", name);
+                            var result = cmd2.ExecuteScalar();
 
-                            
-                            bool isValidPassword = BCrypt.Net.BCrypt.EnhancedVerify(password, hashedPassword);
-
-                            if (isValidPassword)
+                            if (result != null)
                             {
-                                return true;
+                                string hashedPassword = result.ToString();
+                                bool isValidPassword = BCrypt.Net.BCrypt.EnhancedVerify(password, hashedPassword);
+
+                                if (isValidPassword)
+                                    return true;
+                                else
+                                {
+                                    MessageBox.Show("Wrong password!");
+                                    return false;
+                                }
                             }
-                            else
+                            return false;
+                        }
+                    }
+                    else if (dataFromDatabase.Rows.Count == 0 && statNewUser == true)
+                    {
+                        string hashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(password, 13);
+                        string insertQuery = "INSERT INTO UserSaper (Name, Password) VALUES (@Name, @Password)";
+
+                        using (SqlCommand cmd3 = new SqlCommand(insertQuery, conn))
+                        {
+                            cmd3.Parameters.AddWithValue("@Name", name);
+                            cmd3.Parameters.AddWithValue("@Password", hashPassword);
+                            cmd3.ExecuteNonQuery();
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        MessageBox.Show(dataFromDatabase.Rows.Count == 0 && statNewUser == false ? "User doesn't exist!" : "User exists!");
+                        return false;
+                    }
+                }
+            }
+        }
+
+        public static UserRecord InfUser(UserInfo user)
+        {
+            using (SqlConnection conn = GetConnection())
+            {
+                conn.Open();
+                string sql = "SELECT Time, Streak FROM Results WHERE Name = @Name AND Level = @Level";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Name", user.Name);
+                    cmd.Parameters.AddWithValue("@Level", user.Level);
+
+                    DataTable dataFromDatabase = new DataTable();
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        da.Fill(dataFromDatabase);
+                    }
+
+                    UserRecord usr = new UserRecord { Name = user.Name, Level = user.Level };
+
+                    if (dataFromDatabase.Rows.Count == 0)
+                    {
+                        usr.Streak = 0;
+                        usr.BestTime = new TimeSpan(0);
+
+                        string sql1 = "SELECT Id FROM UserSaper WHERE Name = @Name";
+                        using (SqlCommand cmd2 = new SqlCommand(sql1, conn))
+                        {
+                            cmd2.Parameters.AddWithValue("@Name", usr.Name);
+                            object result = cmd2.ExecuteScalar();
+
+                            if (result != null)
                             {
-                                MessageBox.Show("Wrong password!");
-                                return false;
+                                int userId = Convert.ToInt32(result);
+                                string sql2 = "INSERT INTO Results (Name, Time, Level, Streak, IdUser) VALUES (@Name, @Time, @Level, @Streak, @IdUser)";
+
+                                using (SqlCommand cmd3 = new SqlCommand(sql2, conn))
+                                {
+                                    cmd3.Parameters.AddWithValue("@Name", usr.Name);
+                                    cmd3.Parameters.AddWithValue("@Time", usr.BestTime);
+                                    cmd3.Parameters.AddWithValue("@Level", usr.Level);
+                                    cmd3.Parameters.AddWithValue("@Streak", usr.Streak);
+                                    cmd3.Parameters.AddWithValue("@IdUser", userId);
+                                    cmd3.ExecuteNonQuery();
+                                }
                             }
                         }
-                    
-
-                }
-                else if (dataFromDatabase.Rows.Count==0 && statNewUser == true)
-                {
-                    string hashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(password, 13);
-                    string insertQuery = "INSERT INTO UserSaper (Name, Password) VALUES (@Name, @Password)";
-                    _cmd = new SqlCommand(insertQuery, _sqlConnection);
-                    AddValueToString(new List<string> { "@Name", "@Password" }, new List<object> { name, hashPassword });
-                    _cmd.CommandType = CommandType.Text;
-                    _cmd.ExecuteNonQuery();
-                    return true;
-                    
-      
-
-                }
-                else
-                {
-                    if(dataFromDatabase.Rows.Count == 0 && statNewUser == false)
-                    MessageBox.Show("User doesn't exist!");
+                    }
                     else
-                    MessageBox.Show("User exist!");
-
-                    return false;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Błąd: " + ex.Message);
-                return false;
-            }
-            finally
-            {
-                if (_sqlConnection.State == ConnectionState.Open)
-                {
-                    _sqlConnection.Close();
+                    {
+                        usr.Streak = Convert.ToInt16(dataFromDatabase.Rows[0]["Streak"]);
+                        usr.BestTime = TimeSpan.Parse(dataFromDatabase.Rows[0]["Time"].ToString());
+                    }
+                    return usr;
                 }
             }
         }
-        public UserRecord InfUser(UserInfo user)
+
+        public static void UpdateResults(UserRecord user)
         {
-            try
+            using (SqlConnection conn = GetConnection())
             {
-                mycon();
-                string sql = "SELECT Time,Streak FROM Results WHERE Name = @Name AND Level=@Level";
-                _cmd = new SqlCommand(sql, _sqlConnection);
-                
+                conn.Open();
+                string sql = "UPDATE Results SET Streak = @Streak, Time = @Time WHERE Name = @Name AND Level = @Level";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Time", user.BestTime);
+                    cmd.Parameters.AddWithValue("@Streak", user.Streak);
+                    cmd.Parameters.AddWithValue("@Name", user.Name);
+                    cmd.Parameters.AddWithValue("@Level", user.Level);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static DataTable DisplayResults(int level, int tab)
+        {
+            using (SqlConnection conn = GetConnection())
+            {
+                conn.Open();
                 DataTable dataFromDatabase = new DataTable();
-                AddValueToString(new List<string> { "@Name", "@Level" }, new List<object> { user.Name, user.Level });
-                _cmd.CommandType = CommandType.Text;
+                string sql = tab == 0 ? "SELECT Name, Time FROM Results WHERE Level = @Level" : "SELECT Name, Streak FROM Results WHERE Level = @Level";
 
-                _da = new SqlDataAdapter(_cmd);
-
-                _da.Fill(dataFromDatabase);
-                UserRecord usr = new UserRecord();
-                usr.Name = user.Name;
-                usr.Level = user.Level;
-                if (dataFromDatabase.DefaultView.Count == 0)
-                {                       
-                    usr.Streak = 0;
-                    usr.BestTime=new TimeSpan(0);
-                    int userId=0;
-                    string sql1= "SELECT Id FROM UserSaper WHERE Name = @Name";
-                    string sql2 = "INSERT INTO Results (Name,Time,Level,Streak,IdUser) Values (@Name,@Time,@Level,@Streak,@IdUser)";
-                        _cmd = new SqlCommand(sql1, _sqlConnection);
-                    AddValueToString(new List<string> { "@Name" }, new List<object> { usr.Name});
-                        object result = _cmd.ExecuteScalar(); 
-
-                        if (result != null)
-                            userId = Convert.ToInt32(result);
-
-                    _cmd = new SqlCommand(sql2, _sqlConnection);
-                    AddValueToString(new List<string> { "@Name", "@Time","@Level", "@Streak","@IdUser" }, new List<object> { usr.Name, usr.BestTime, usr.Level, usr.Streak, userId });
-                    _cmd.ExecuteNonQuery(); 
-
-                }
-                else
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-
-                    usr.Streak = Convert.ToInt16(dataFromDatabase.Rows[0]["Streak"]);
-                    usr.BestTime = TimeSpan.Parse(dataFromDatabase.Rows[0]["Time"].ToString());
+                    cmd.Parameters.AddWithValue("@Level", level);
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        da.Fill(dataFromDatabase);
+                    }
                 }
-                return usr;
-
-
-                
-            }
-
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                if (_sqlConnection.State == ConnectionState.Open)
-                {
-                    _sqlConnection.Close();
-                }
-            }
-
-
-            return null;
-        }
-
-        public void UpdateResults(UserRecord user)
-        {
-            try
-            {
-                mycon();
-                string sql = "Update Results Set Streak=@Streak,Time=@Time WHERE Name = @Name AND Level=@Level";
-                _cmd = new SqlCommand(sql, _sqlConnection);
-                AddValueToString(new List<string> { "@Time", "@Streak", "@Name","@Level"}, new List<object> { user.BestTime, user.Streak, user.Name,  user.Level});
-                _cmd.CommandType = CommandType.Text;
-                _cmd.ExecuteNonQuery();
-
-            }
-
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                if (_sqlConnection.State == ConnectionState.Open)
-                {
-                    _sqlConnection.Close();
-                }
-            }
-        }
-        public DataTable DisplayResults(int level,int tab)
-        {
-            try
-            {
-                mycon();
-                DataTable dataFromDatabase = new DataTable();
-                string sql;
-                if (tab == 0)
-                    sql = "SELECT Name,Time FROM Results Where Level=@Level";
-                else
-                    sql = "SELECT Name,Streak FROM Results Where Level=@Level";
-
-                _cmd = new SqlCommand(sql, _sqlConnection);
-                AddValueToString(new List<string> {  "@Level" }, new List<object> { level });
-                _cmd.CommandType = CommandType.Text;          
-                _da = new SqlDataAdapter(_cmd);
-                _da.Fill(dataFromDatabase);
-
                 return dataFromDatabase;
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                return null;
-            }
-            finally
-            {
-                if (_sqlConnection.State == ConnectionState.Open)
-                {
-                    _sqlConnection.Close();
-                }
-            }
-        }
-
-        private void AddValueToString(List<string>listName,List<object>listObject)
-        {
-            for (int i=0;i<listName.Count;i++)
-            {
-                _cmd.Parameters.AddWithValue(listName[i], listObject[i]);
-            }
-
         }
     }
+
 }
