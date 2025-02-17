@@ -196,7 +196,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="MVVM\Model\DatabaseSaper.cs" />
+    <Compile Include="MVVM\Model\DataBase\DatabaseSaper.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -265,11 +265,11 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MVVM\Model\BackgroudButton.cs" />
-    <Compile Include="MVVM\Model\ButtonSaper.cs" />
-    <Compile Include="MVVM\Model\PoleSaper.cs" />
-    <Compile Include="MVVM\Model\UserInfo.cs" />
-    <Compile Include="MVVM\Model\UserRecord.cs" />
+    <Compile Include="MVVM\Model\Button\BackgroudButton.cs" />
+    <Compile Include="MVVM\Model\Button\ButtonSaper.cs" />
+    <Compile Include="MVVM\Model\Board\PoleSaper.cs" />
+    <Compile Include="MVVM\Model\User\UserInfo.cs" />
+    <Compile Include="MVVM\Model\User\UserRecord.cs" />
     <Compile Include="MVVM\ViewModel\GameViewModel.cs" />
     <Compile Include="MVVM\ViewModel\HomeViewModel.cs" />
     <Compile Include="MVVM\ViewModel\MainViewModel.cs" />

@@ -43,26 +43,22 @@ namespace Saper.MVVM.Model
             {
                
                 mycon();
-                
-
-                
-                string selectQuery = "SELECT * FROM UserSaper WHERE Name = @Name";
+                 string selectQuery = "SELECT * FROM UserSaper WHERE Name = @Name";
                 _cmd = new SqlCommand(selectQuery, _sqlConnection);
-                _cmd.Parameters.AddWithValue("@Name", name);
+                AddValueToString(new List<string> { "@Name" }, new List<object> { name });
                 _cmd.CommandType = CommandType.Text;
 
-                DataTable dt = new DataTable();
+                DataTable dataFromDatabase = new DataTable();
                 _da = new SqlDataAdapter(_cmd);
-                _da.Fill(dt);
+                _da.Fill(dataFromDatabase);
 
-                if (dt.Rows.Count > 0 && statNewUser==false)
+                if (dataFromDatabase.Rows.Count > 0 && statNewUser==false)
                 {
-                    string sql = "SELECT Password FROM UserSaper WHERE Name = @Name";
-                    using (SqlCommand cmd = new SqlCommand(sql, _sqlConnection))
-                    {
-                        cmd.Parameters.AddWithValue("@Name", name);
-                        cmd.CommandType = CommandType.Text;
-                        var result = cmd.ExecuteScalar();
+                        string sql = "SELECT Password FROM UserSaper WHERE Name = @Name";
+                        _cmd = new SqlCommand(sql, _sqlConnection);
+                        AddValueToString(new List<string> { "@Name" },new List<object> {name});
+                        _cmd.CommandType = CommandType.Text;
+                        var result = _cmd.ExecuteScalar();
 
                         if (result != null)
                         {
@@ -81,27 +77,25 @@ namespace Saper.MVVM.Model
                                 return false;
                             }
                         }
-                    }
+                    
 
                 }
-                else if (dt.Rows.Count==0 && statNewUser == true)
+                else if (dataFromDatabase.Rows.Count==0 && statNewUser == true)
                 {
-                    string hashpassword = BCrypt.Net.BCrypt.EnhancedHashPassword(password, 13);
+                    string hashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(password, 13);
                     string insertQuery = "INSERT INTO UserSaper (Name, Password) VALUES (@Name, @Password)";
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, _sqlConnection))
-                    {
-                        cmd.Parameters.AddWithValue("@Name", name);
-                        cmd.Parameters.AddWithValue("@Password", hashpassword);
-                        cmd.CommandType = CommandType.Text;
-                        cmd.ExecuteNonQuery();
-                        return true;
-                    }
+                    _cmd = new SqlCommand(insertQuery, _sqlConnection);
+                    AddValueToString(new List<string> { "@Name", "@Password" }, new List<object> { name, hashPassword });
+                    _cmd.CommandType = CommandType.Text;
+                    _cmd.ExecuteNonQuery();
+                    return true;
+                    
       
 
                 }
                 else
                 {
-                    if(dt.Rows.Count == 0 && statNewUser == false)
+                    if(dataFromDatabase.Rows.Count == 0 && statNewUser == false)
                     MessageBox.Show("User doesn't exist!");
                     else
                     MessageBox.Show("User exist!");
@@ -130,60 +124,47 @@ namespace Saper.MVVM.Model
             {
                 mycon();
                 string sql = "SELECT Time,Streak FROM Results WHERE Name = @Name AND Level=@Level";
-                using (SqlCommand cmd = new SqlCommand(sql, _sqlConnection))
-                {
-                    DataTable dt = new DataTable();
+                _cmd = new SqlCommand(sql, _sqlConnection);
+                
+                DataTable dataFromDatabase = new DataTable();
+                AddValueToString(new List<string> { "@Name", "@Level" }, new List<object> { user.Name, user.Level });
+                _cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.AddWithValue("@Name", user.Name);
-                    cmd.Parameters.AddWithValue("@Level", user.Level);
-                    cmd.CommandType = CommandType.Text;
+                _da = new SqlDataAdapter(_cmd);
 
-                    _da = new SqlDataAdapter(cmd);
+                _da.Fill(dataFromDatabase);
+                UserRecord usr = new UserRecord();
+                usr.Name = user.Name;
+                usr.Level = user.Level;
+                if (dataFromDatabase.DefaultView.Count == 0)
+                {                       
+                    usr.Streak = 0;
+                    usr.BestTime=new TimeSpan(0);
+                    int userId=0;
+                    string sql1= "SELECT Id FROM UserSaper WHERE Name = @Name";
+                    string sql2 = "INSERT INTO Results (Name,Time,Level,Streak,IdUser) Values (@Name,@Time,@Level,@Streak,@IdUser)";
+                        _cmd = new SqlCommand(sql1, _sqlConnection);
+                    AddValueToString(new List<string> { "@Name" }, new List<object> { usr.Name});
+                        object result = _cmd.ExecuteScalar(); 
 
-                    _da.Fill(dt);
-                    UserRecord usr = new UserRecord();
-                    usr.Name = user.Name;
-                    usr.Level = user.Level;
-                    if (dt.DefaultView.Count == 0)
-                    {                       
-                        usr.Streak = 0;
-                        usr.BestTime=new TimeSpan(0);
-                        int userId=0;
-                        string sql1= "SELECT Id FROM UserSaper WHERE Name = @Name";
-                        string sql2 = "INSERT INTO Results (Name,Time,Level,Streak,IdUser) Values (@Name,@Time,@Level,@Streak,@IdUser)";
-                        using (SqlCommand cmd1 = new SqlCommand(sql1, _sqlConnection))
-                        {
-                            cmd1.Parameters.AddWithValue("@Name", usr.Name);
-                            object result = cmd1.ExecuteScalar(); 
+                        if (result != null)
+                            userId = Convert.ToInt32(result);
 
-                            if (result != null)
-                                userId = Convert.ToInt32(result);
-
-                        }
-                        using (SqlCommand cmd2 = new SqlCommand(sql2, _sqlConnection))
-                        {
-                            cmd2.Parameters.AddWithValue("@Name", usr.Name);
-                            cmd2.Parameters.AddWithValue("@Time", usr.BestTime);
-                            cmd2.Parameters.AddWithValue("@Level", usr.Level);
-                            cmd2.Parameters.AddWithValue("@Streak", usr.Streak);
-                            cmd2.Parameters.AddWithValue("@IdUser", userId);
-                            cmd2.ExecuteNonQuery(); 
-
-
-
-                        }
-
-                    }
-                    else
-                    {
-
-                        usr.Streak = Convert.ToInt16(dt.Rows[0]["Streak"]);
-                        usr.BestTime = TimeSpan.Parse(dt.Rows[0]["Time"].ToString());
-                    }
-                    return usr;
-
+                    _cmd = new SqlCommand(sql2, _sqlConnection);
+                    AddValueToString(new List<string> { "@Name", "@Time","@Level", "@Streak","@IdUser" }, new List<object> { usr.Name, usr.BestTime, usr.Level, usr.Streak, userId });
+                    _cmd.ExecuteNonQuery(); 
 
                 }
+                else
+                {
+
+                    usr.Streak = Convert.ToInt16(dataFromDatabase.Rows[0]["Streak"]);
+                    usr.BestTime = TimeSpan.Parse(dataFromDatabase.Rows[0]["Time"].ToString());
+                }
+                return usr;
+
+
+                
             }
 
             catch (Exception ex)
@@ -208,16 +189,11 @@ namespace Saper.MVVM.Model
             {
                 mycon();
                 string sql = "Update Results Set Streak=@Streak,Time=@Time WHERE Name = @Name AND Level=@Level";
-                using (SqlCommand cmd = new SqlCommand(sql, _sqlConnection))
-                {
+                _cmd = new SqlCommand(sql, _sqlConnection);
+                AddValueToString(new List<string> { "@Time", "@Streak", "@Name","@Level"}, new List<object> { user.BestTime, user.Streak, user.Name,  user.Level});
+                _cmd.CommandType = CommandType.Text;
+                _cmd.ExecuteNonQuery();
 
-                    cmd.Parameters.AddWithValue("@Time", user.BestTime);
-                    cmd.Parameters.AddWithValue("@Streak", user.Streak);
-                    cmd.Parameters.AddWithValue("@Name", user.Name);
-                    cmd.Parameters.AddWithValue("@Level", user.Level);
-                    cmd.CommandType = CommandType.Text;
-                    cmd.ExecuteNonQuery();
-                }
             }
 
             catch (Exception ex)
@@ -237,7 +213,7 @@ namespace Saper.MVVM.Model
             try
             {
                 mycon();
-                DataTable dt = new DataTable();
+                DataTable dataFromDatabase = new DataTable();
                 string sql;
                 if (tab == 0)
                     sql = "SELECT Name,Time FROM Results Where Level=@Level";
@@ -245,12 +221,12 @@ namespace Saper.MVVM.Model
                     sql = "SELECT Name,Streak FROM Results Where Level=@Level";
 
                 _cmd = new SqlCommand(sql, _sqlConnection);
-                _cmd.Parameters.AddWithValue("@Level", level);
+                AddValueToString(new List<string> {  "@Level" }, new List<object> { level });
                 _cmd.CommandType = CommandType.Text;          
                 _da = new SqlDataAdapter(_cmd);
-                _da.Fill(dt);
+                _da.Fill(dataFromDatabase);
 
-                return dt;
+                return dataFromDatabase;
             }
             catch (Exception ex)
             {
@@ -264,6 +240,15 @@ namespace Saper.MVVM.Model
                     _sqlConnection.Close();
                 }
             }
+        }
+
+        private void AddValueToString(List<string>listName,List<object>listObject)
+        {
+            for (int i=0;i<listName.Count;i++)
+            {
+                _cmd.Parameters.AddWithValue(listName[i], listObject[i]);
+            }
+
         }
     }
 }
