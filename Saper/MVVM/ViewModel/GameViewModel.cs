@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-
+using Saper.MVVM.Model.DataBase;
 namespace Saper.MVVM.ViewModel
 {
     class GameViewModel : ObservableObject
@@ -19,7 +19,6 @@ namespace Saper.MVVM.ViewModel
         private DateTime timeStart;
         private string _timeGame;
         private string _bestTimeGame;
-        private DatabaseSaper _databaseSaper;
         private UserRecord _userRecordAct;
         private UserRecord _userRecordBest;
         private string _flagCount;
@@ -135,8 +134,8 @@ namespace Saper.MVVM.ViewModel
              User = userInfo;
             UserName=User.Name;
             _mainViewModel = mainViewModel;
-            _databaseSaper = new DatabaseSaper();
-            _userRecordBest = _databaseSaper.InfUser(userInfo);
+
+            _userRecordBest = DatabaseSaper.InfUser(userInfo);
             _userRecordAct = new UserRecord(userInfo);
 
             CurrentStreak=_userRecordAct.Streak;
@@ -155,7 +154,7 @@ namespace Saper.MVVM.ViewModel
         private void Wait(object sender, EventArgs e)
         {
             string flagCount, bombCount; 
-            bool odp = _poleSaper.waitForClick(out flagCount, out bombCount);
+            bool odp = _poleSaper.WaitForClick(out flagCount, out bombCount);
             _statusGame = 0;
             FlagCount = flagCount;
             BombCount = bombCount;
@@ -165,23 +164,25 @@ namespace Saper.MVVM.ViewModel
 
                 timeStart = DateTime.Now;
                 _timer.Tick -= Wait;
-                _timer.Tick += duringGame;
+                _timer.Tick += EventduringGame;
             }
 
 
         }
-        private void duringGame(object sender, EventArgs e)
+        private void EventduringGame(object sender, EventArgs e)
         {
             string flagCount;
-            int odp = _poleSaper.duringGame(out flagCount);
+            int odp = _poleSaper.EventInBoard(out flagCount);
             FlagCount = flagCount;
             _statusGame = odp;
             if (odp==1 || odp==2)
             {
-                _timer.Tick -= duringGame;
+                _timer.Tick -= EventduringGame;
                 _timer.Stop();
                 if (odp == 1)
                     WinGame();
+                else
+                    CurrentStreak = 0;
                
 
             }
@@ -197,7 +198,7 @@ namespace Saper.MVVM.ViewModel
             
             BestStreak = _userRecordBest.Streak;
             BestTime = _userRecordBest.BestTime.ToString(@"hh\:mm\:ss");
-            _timer.Tick -= duringGame;
+            _timer.Tick -= EventduringGame;
             _timer.Tick += Wait;
             TimeGame = TimeSpan.Zero.ToString();
             _poleSaper = new PoleSaper(User.Level);
@@ -228,7 +229,7 @@ namespace Saper.MVVM.ViewModel
 
             }
             if (changeFalg)
-                _databaseSaper.UpdateResults(_userRecordBest);
+                DatabaseSaper.UpdateResults(_userRecordBest);
 
         }
 

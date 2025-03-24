@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Saper.MVVM.Model.Board.HelpClass;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -6,10 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Threading;
+
 
 namespace Saper.MVVM.Model
 {
@@ -18,18 +16,15 @@ namespace Saper.MVVM.Model
         private Grid _gridSaper;
 
         private List<ButtonSaper> _buttonsInGrid;
-        private int _szRow;
-        private int _szCol;
-        private int _amB;
+        private int _widthRow;
+        private int _widthCol;
+        private int _countBomb;
         private bool _startGame;
         private int _actFalg;
-        
+        private CheckAreaAround checkAreaAround;
 
         
-        public List<ButtonSaper> ButtonSapers {
-            get {  return _buttonsInGrid; }
-            set {  _buttonsInGrid = value; } 
-        }
+
 
         public Grid GridSaper
         {
@@ -37,37 +32,41 @@ namespace Saper.MVVM.Model
             set { _gridSaper = value; }
         }
 
-  
+        public List<ButtonSaper> Buttons//for test
+        {
+            get { return _buttonsInGrid; }
+            set { _buttonsInGrid = value; }
+        }
 
         public PoleSaper(int par)
         {
-
-            ButtonSapers = new List<ButtonSaper>();
+            
+            _buttonsInGrid = new List<ButtonSaper>();
             GridSaper = new Grid();
             switch (par)
             {
                 case 1:
-                    InitializeGrid(320,400,8,10,40,10);
+                    InitializeGrid(320,400,8,10,40,10);//80 blocks
                     break;
                 case 2:                   
-                    InitializeGrid(378,486,14,18,27,40);
+                    InitializeGrid(378,486,14,18,27,40);//252 blocks
                     break;
                 case 3:
-                    InitializeGrid(380,456,20,24,19,99);
+                    InitializeGrid(380,456,20,24,19,99);//480 blocks
                     break;
             }
            
 
         }
-        private void InitializeGrid(int height, int widht, int szRow, int szCol, int szB, int amB)
+        private void InitializeGrid(int heightBoard, int widthBoard, int widthRow, int szCol, int szB, int countBomb)
         {
             GridSaper.VerticalAlignment = VerticalAlignment.Center;
             GridSaper.HorizontalAlignment = HorizontalAlignment.Center;
-            GridSaper.Height = height;
-            GridSaper.Width = widht;
-            GridSaper.MouseRightButtonDown += ButtonRightClick;
+            GridSaper.Height = heightBoard;
+            GridSaper.Width = widthBoard;
+           GridSaper.MouseRightButtonDown += ClickButtonRight;
             //
-            for (int i = 0; i < szRow; i++)
+            for (int i = 0; i < widthRow; i++)
             {
                 RowDefinition row = new RowDefinition();
                 row.Height = new GridLength(szB);
@@ -81,59 +80,62 @@ namespace Saper.MVVM.Model
 
                     ButtonSaper btnS = new ButtonSaper(i, j);
 
+
                     Grid.SetRow(btnS.ButtonSp, btnS.x);
                     Grid.SetColumn(btnS.ButtonSp, btnS.y);
-                    ButtonSapers.Add(btnS);
-                    GridSaper.Children.Add(ButtonSapers.Last().ButtonSp);
+                    _buttonsInGrid.Add(btnS);
+                    GridSaper.Children.Add(_buttonsInGrid.Last().ButtonSp);
 
                 }
             }
-            _szCol = szCol;
-            _szRow = szRow;
-            _amB = amB;
-            // RozBomb(amB, szCol, szRow);
+            checkAreaAround=new CheckAreaAround(_buttonsInGrid);//add to check buttons
+            
+            _widthCol = szCol;
+            _widthRow = widthRow;
+            _countBomb = countBomb;
+            
 
         }
 
-        public bool waitForClick(out string bombCount, out string flagCount)
+        public bool WaitForClick(out string bombCount, out string flagCount)
         {
-            bombCount = ":"+ _amB.ToString();
-            flagCount = ":"+_amB.ToString();
+            bombCount = ":"+ _countBomb.ToString();
+            flagCount = ":"+_countBomb.ToString();
             if (_buttonsInGrid.Any(a=>a.DisplayNew==true))
                 {
-                     ButtonSaper bs = _buttonsInGrid.FirstOrDefault(a => a.DisplayNew == true);
+                     ButtonSaper newButtonClick = _buttonsInGrid.FirstOrDefault(a => a.DisplayNew == true);
                       _startGame = true;
-                     bs.FirstPoleAround = true;
-                     bs.Display = true;
-                     bs.DisplayNew = false;
+                     newButtonClick.FirstPoleAround = true;
+                     newButtonClick.Display = true;
+                     newButtonClick.DisplayNew = false;
 
-                  BackgroudButton.ChangeButton(bs);
-                  StartPole(bs);
-                  RozBomb();
-                  checkAreaAround(bs);
-
-                    return true;
+                BackgroudButton.ChangeButton(newButtonClick);
+                StartPole(newButtonClick);
+                PlacementBomb.Placement(_buttonsInGrid, _widthRow, _widthCol, _countBomb); //RozBomb();
+                checkAreaAround.Check(newButtonClick);
+                   return true;
                 }
                 return false;
 
         }
 
-        public int  duringGame(out string flagCount)
+        public int  EventInBoard(out string flagCount)
         {
-             flagCount= ":" + (_amB - _actFalg).ToString(); 
+             flagCount= ":" + (_countBomb - _actFalg).ToString(); 
             if (_buttonsInGrid.Any(a => a.DisplayNew == true))
             {
-                ButtonSaper bs = _buttonsInGrid.FirstOrDefault(a => a.DisplayNew == true);
-                bs.Display = true;
-                bs.DisplayNew = false;
-                BackgroudButton.ChangeButton(bs);
-                if (bs.InfBomb==true)
+                
+                ButtonSaper newButtonClick = _buttonsInGrid.FirstOrDefault(a => a.DisplayNew == true);
+                newButtonClick.Display = true;
+                newButtonClick.DisplayNew = false;
+                BackgroudButton.ChangeButton(newButtonClick);
+                if (newButtonClick.InfBomb==true)
                 {
                     LoseGame();
                     MessageBox.Show("You lose!");
                     return 2;
                 }
-                checkAreaAround(bs);
+                checkAreaAround.Check(newButtonClick);
                 if(_buttonsInGrid
                     .Where(a=>a.InfBomb==false)
                     .All(b=>b.Display==true)
@@ -146,8 +148,8 @@ namespace Saper.MVVM.Model
             }
             _actFalg= _buttonsInGrid.Count(a=>a.RightClick==true);
 
-            if(_amB - _actFalg>=0)
-            flagCount=":" + (_amB- _actFalg).ToString();
+            if(_countBomb - _actFalg>=0)
+            flagCount=":" + (_countBomb- _actFalg).ToString();
 
             return 0;
         }
@@ -164,102 +166,30 @@ namespace Saper.MVVM.Model
                     
             }
         }
-        private void WinGame()
-        {
-            
-        }
 
-        public void checkAreaAround(ButtonSaper bs)
-        {
-            for (int i = 0; i < 8; i++)
-            {
-                var (pozx, pozy) = checkButt(bs.x, bs.y, i);
-                if (_buttonsInGrid.Any(a => a.x == pozx && a.y == pozy))
-                {
-                    ButtonSaper bsOb = _buttonsInGrid.FirstOrDefault(a => a.x == pozx && a.y == pozy);    
-                    if (bsOb.InfBomb == false && bsOb.QuantBomb == 0 && bsOb!=null && bsOb.Display==false)
-                    {
-                        bsOb.Display = true;
-                        BackgroudButton.ChangeButton(bsOb);
-                        checkAreaAround(bsOb);
-                    }
-                    if (bs.QuantBomb == 0 && bs.InfBomb == false)
-                    {
-                        bsOb.Display = true;
-                        BackgroudButton.ChangeButton(bsOb);
-                    }
 
-                }
-            }
-        }
 
         private void StartPole(ButtonSaper bs)
         {
             for(int i = 0;i<8;i++)
             {
-                var (pozx, pozy) = checkButt(bs.x, bs.y, i);
+                var (pozx, pozy) = CheckPoleAround.Check(bs.x, bs.y, i);
                 if (_buttonsInGrid.Any(a => a.x==pozx && a.y==pozy))
                 {
                     ButtonSaper bsOb = _buttonsInGrid.FirstOrDefault(a => a.x == pozx && a.y == pozy);
                     bsOb.FirstPoleAround = true;
 
+
                 }
             }
             
         }
-        private void RozBomb()
+
+        private void ClickButtonRight(object sender, RoutedEventArgs e)//block more flags
         {
-            var indeks = new List<(int, int)>();
-            var random = new Random();
 
-            for (int i = 0; i < _amB; i++)
-            {
-                int x = random.Next(0, _szRow);
-                int y = random.Next(0, _szCol);
+            if(_actFalg==_countBomb)
 
-                bool bothValuesInRow = indeks.Any(row => row.Item1 == x && row.Item2 == y);
-                bool btnDispaly= _buttonsInGrid.Any(a=>a.x == x && a.y == y && a.FirstPoleAround==true);
-                if (bothValuesInRow || btnDispaly)
-                    i--;
-
-                else
-                {
-                    ButtonSaper btnS= _buttonsInGrid.FirstOrDefault(a => a.x == x && a.y == y);
-                    btnS.InfBomb = true;
-                    indeks.Add((x, y));
-                }
-                    
-
-            }
-
-            foreach (ButtonSaper btn in ButtonSapers)//przypisanie bomb
-            {
-                if (btn.InfBomb)
-                {
-
-                    for (int i = 0; i < 8; i++)
-                    {
-                        var (pozx, pozy) = checkButt(btn.x, btn.y, i);
-                        int pozxx = pozx;
-                        int pozyy = pozy;
-                        ButtonSaper tempBtn = ButtonSapers.FirstOrDefault(a => a.x == (int)pozx && a.y == pozy);
-                        if (tempBtn != null && tempBtn.InfBomb == false)
-                        {
-                            tempBtn.QuantBomb++;
-                        }
-                    }
-
-                }
-                else
-                    btn.InfBomb = false;
-
-            }   
-
-        }
-
-        private void ButtonRightClick(object sender, RoutedEventArgs e)//block more flags
-        {
-            if(_actFalg==_amB)
             {
                 GridSaper.Tag = "f";
             }
@@ -268,54 +198,6 @@ namespace Saper.MVVM.Model
                 GridSaper.Tag = null;
             }
         }
-        private (int,int) checkButt(int x,int y,int i)
-        {
-            int pozx=0;
-            int pozy=0;
-            switch(i)
-            {
-                case 0:
-                    pozx = x-1;
-                    pozy = y-1;
-                    break;
-                case 1:
-                    pozx = x - 1;
-                    pozy = y ;
-                    break;
-
-                case 2:
-                    pozx = x - 1;
-                    pozy = y + 1;
-                    break;
-
-                case 3:
-                    pozx = x ;
-                    pozy = y - 1;
-                    break;
-
-                case 4:
-                    pozx = x ;
-                    pozy = y + 1;
-                    break;
-
-                case 5:
-                    pozx = x + 1;
-                    pozy = y - 1;
-                    break;
-
-                case 6:
-                    pozx = x + 1;
-                    pozy = y;
-                    break;
-                case 7:
-                    pozx = x + 1;
-                    pozy = y + 1;
-                    break;
-
-            }
-
-
-            return (pozx,pozy);
-        }
+        
     }
 }

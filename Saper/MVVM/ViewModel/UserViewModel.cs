@@ -15,6 +15,7 @@ using System.Windows.Input;
 using System.Text.RegularExpressions;
 using System.Configuration;
 using System.Drawing;
+using Saper.MVVM.Model.DataBase;
 
 
 
@@ -27,7 +28,6 @@ namespace Saper.MVVM.ViewModel
         private SolidColorBrush _colorText;
         private UserInfo _user;
         private string _userName;
-        private DatabaseSaper _databaseSaper;
         private string _displayedText;
         private string _password;
         private bool _newUser;
@@ -144,7 +144,7 @@ namespace Saper.MVVM.ViewModel
 
             GameViewCommand = new RelayCommand(o =>
             {
-                _databaseSaper = new DatabaseSaper();
+
                 
 
 
@@ -153,7 +153,7 @@ namespace Saper.MVVM.ViewModel
                     MessageBox.Show("Empty Name or Password!");
                     return;
                 }
-               bool odp= _databaseSaper.CheckName(User.Name, _password, NewUser);
+               bool odp= DatabaseSaper.CheckName(User.Name, _password, NewUser);
                 if (odp)
                 {
                     _mainViewModel.CurrentView = new GameViewModel(_mainViewModel, User);

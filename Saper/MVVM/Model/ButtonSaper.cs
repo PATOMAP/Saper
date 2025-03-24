@@ -19,9 +19,9 @@ namespace Saper.MVVM.Model
 
         private Button _buttonSp;
 
-        private bool _infBomb; 
+        private bool _infBomb;
 
-        private int _quantBomb;
+        private int _countBomb;
 
         private bool _display;
 
@@ -50,10 +50,10 @@ namespace Saper.MVVM.Model
             set { _display = value; }
         }
 
-        public int QuantBomb
+        public int CountBomb
         {
-            get{ return _quantBomb; }
-            set { _quantBomb = value; }
+            get { return _countBomb; }
+            set { _countBomb = value; }
         }
 
         public bool InfBomb
@@ -71,36 +71,43 @@ namespace Saper.MVVM.Model
         {
             get { return _rightClick; }
 
+            set { _rightClick = value; }//for tests
         }
+
+
+
 
         public bool FirstPoleAround { get => _firstPoleAround; set => _firstPoleAround = value; }
 
-        public ButtonSaper(int x,int y) 
+        public ButtonSaper(int x, int y)
         {
-            _rightClick= false;
+            _rightClick = false;
             Display = false;
-            FirstPoleAround=false;
+            FirstPoleAround = false;
             ButtonSp = new Button();
-            QuantBomb = 0;
+            CountBomb = 0;
             PoleStart = false;
             TextBlock txt = new TextBlock() { Text = "?" };
             ButtonSp.Content = txt;
-            ButtonSp.MouseRightButtonUp += ButtonRightClick;
-            ButtonSp.Click += ButtonLeftClick;
+
             this.x = x;
             this.y = y;
-            
+
+            ButtonSp.MouseRightButtonUp += ClickRightButton;
+            ButtonSp.Click += ClickLeftButton;
+
+
         }
 
-        private void ButtonRightClick(object sender, RoutedEventArgs e)
+        private void ClickRightButton(object sender, RoutedEventArgs e)
         {
-            
+
             Button btn = sender as Button;
-            Grid grd=btn.Parent as Grid;
-            if(Display==false )
+            Grid grd = btn.Parent as Grid;
+            if (Display == false)
             {
-                if(grd.Tag == null)
-                _rightClick = !_rightClick;
+                if (grd.Tag == null)
+                    _rightClick = !_rightClick;
 
                 if (_rightClick && grd.Tag == null)
                 {
@@ -121,17 +128,18 @@ namespace Saper.MVVM.Model
             }
 
 
-                
+
         }
-        private void ButtonLeftClick(object sender, RoutedEventArgs e)
+        private void ClickLeftButton(object sender, RoutedEventArgs e)
         {
-            if(Display!=true)
+            if (Display != true)
             {
                 DisplayNew = true;
                 _rightClick = false;
             }
-            
+
         }
 
     }
+
 }

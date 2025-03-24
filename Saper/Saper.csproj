@@ -196,7 +196,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="MVVM\Model\DatabaseSaper.cs" />
+    <Compile Include="MVVM\Model\Board\Errors\ErrorArea.cs" />
+    <Compile Include="MVVM\Model\Board\Errors\ErrorButton.cs" />
+    <Compile Include="MVVM\Model\Board\HelpClass\CheckAreaAround.cs" />
+    <Compile Include="MVVM\Model\Board\HelpClass\CheckPoleAround.cs" />
+    <Compile Include="MVVM\Model\Board\HelpClass\Interfaces\ICheckAreaAround.cs" />
+    <Compile Include="MVVM\Model\Board\HelpClass\PlacementBomb.cs" />
+    <Compile Include="MVVM\Model\DataBase\DatabaseSaper.cs" />
+
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

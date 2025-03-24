@@ -3,6 +3,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# .NET configuration files
+Saper/App.config
+SaperTest/App.config
+
+
 # User-specific files
 *.rsuser
 *.suo

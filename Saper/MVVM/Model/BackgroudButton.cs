@@ -14,24 +14,26 @@ namespace Saper.MVVM.Model
     public class BackgroudButton
     {
 
-        public static void ChangeButton(ButtonSaper btn)
+
+
+        public static void ChangeButton(ButtonSaper buttonSaper)
         {
-            if (btn.Display == true)
+            if (buttonSaper.Display == true)
             {
-                if (btn.InfBomb)
+                if (buttonSaper.InfBomb)
                 {
                     Image img = new Image
                     {
                         Source = new BitmapImage(new Uri("pack://application:,,,/Saper;component/Images/bomba.png"))
                     };
-                    btn.ButtonSp.Background = new SolidColorBrush(Colors.Red);
-                    btn.ButtonSp.Content = img;
+                    buttonSaper.ButtonSp.Background = new SolidColorBrush(Colors.Red);
+                    buttonSaper.ButtonSp.Content = img;
 
                 }
-                else if (btn.InfBomb == false && btn.QuantBomb > 0)
+                else if (buttonSaper.InfBomb == false && buttonSaper.CountBomb > 0)
                 {
-                    TextBlock txt = new TextBlock() { Text = btn.QuantBomb.ToString() };
-                    switch (btn.QuantBomb)
+                    TextBlock txt = new TextBlock() { Text = buttonSaper.CountBomb.ToString() };
+                    switch (buttonSaper.CountBomb)
                     {
                         case 1:
                             txt.Foreground = new SolidColorBrush(Colors.Red);
@@ -62,13 +64,13 @@ namespace Saper.MVVM.Model
                             break;
                     }
                     txt.FontWeight = FontWeights.Bold;
-                    btn.ButtonSp.Content = txt;
+                    buttonSaper.ButtonSp.Content = txt;
 
 
                 }
                 else
                 {
-                    btn.ButtonSp.Content = null;
+                    buttonSaper.ButtonSp.Content = null;
                 }
             }
 
